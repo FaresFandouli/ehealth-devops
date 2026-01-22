@@ -1,0 +1,53 @@
+# Compiled class files
+*.class
+target/
+build/
+
+# Log files
+*.log
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Gradle
+.gradle/
+
+# Node modules
+node_modules/
+pds-frontend/node_modules/
+pds-frontend/dist/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+data/
+
+# Test coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
