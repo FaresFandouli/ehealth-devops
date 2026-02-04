@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import os
 
-FRONTEND = "/home/claude/pds-complete-project/pds-frontend"
+# Créer le dossier frontend dans le répertoire actuel (PDS)
+FRONTEND = "pds-frontend"
 
 files = {
     "src/main.jsx": """import React from 'react'
@@ -443,6 +444,156 @@ export default function Patients() {
   return <div>Appointments</div>
 }""",
 
+    "package.json": """{
+  "name": "pds-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.17.9",
+    "axios": "^1.6.5",
+    "keycloak-js": "^23.0.4",
+    "lucide-react": "^0.312.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.4.1",
+    "react-router-dom": "^6.21.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "vite": "^5.0.11"
+  }
+}""",
+
+    "vite.config.js": """import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8081',
+        changeOrigin: true
+      }
+    }
+  }
+})""",
+
+    "tailwind.config.js": """/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+        }
+      }
+    },
+  },
+  plugins: [],
+}""",
+
+    "postcss.config.js": """export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}""",
+
+    "index.html": """<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDS E-Health</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>""",
+
+    ".gitignore": """# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?""",
+
+    "README.md": """# PDS E-Health Frontend
+
+## Installation
+
+```bash
+npm install
+```
+
+## Development
+
+```bash
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Features
+
+-  Keycloak Authentication
+-  Dashboard with Statistics
+- Patient Management
+- Appointment Scheduling
+- Tailwind CSS Styling
+- React Query for Data Fetching
+""",
+
     "src/components/common/.gitkeep": "",
     "src/hooks/.gitkeep": "",
     "src/services/.gitkeep": "",
@@ -457,4 +608,9 @@ for filepath, content in files.items():
         f.write(content)
     print(f"Created: {filepath}")
 
-print("\n✅ React frontend created successfully!")
+print("\nReact frontend created successfully in 'pds-frontend' folder!")
+print("Location: " + os.path.abspath(FRONTEND))
+print("\n Next steps:")
+print("   1. cd pds-frontend")
+print("   2. npm install")
+print("   3. npm run dev")
