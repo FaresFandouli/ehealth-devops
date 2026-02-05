@@ -12,28 +12,28 @@ spring:
           predicates:
             - Path=/api/auth/**
           filters:
-            - StripPrefix=0  # ✅ AJOUTÉ - Ne supprime aucun préfixe
+            - StripPrefix=0  # ✅ Ne supprime rien, garde /api/auth intact
 
         - id: clinic-service
           uri: lb://clinic-service
           predicates:
             - Path=/api/clinic/**
           filters:
-            - StripPrefix=0  # ✅ AJOUTÉ - Garde /api/clinic dans l'URL
+            - StripPrefix=0  # ✅ Ne supprime rien, garde /api/clinic intact
 
         - id: medical-service
           uri: lb://medical-service
           predicates:
             - Path=/api/medical/**
           filters:
-            - StripPrefix=0  # ✅ AJOUTÉ
+            - StripPrefix=0  # ✅ Ne supprime rien, garde /api/medical intact
 
         - id: consultation-service
           uri: lb://consultation-service
           predicates:
             - Path=/api/consultation/**
           filters:
-            - StripPrefix=0  # ✅ AJOUTÉ
+            - StripPrefix=0  # ✅ Ne supprime rien, garde /api/consultation intact
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
@@ -41,15 +41,22 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: "*"
+            allowedOrigins:
+              - "http://localhost:5173"
+              - "http://localhost:3000"
+              - "http://localhost:8082"
+              - "http://localhost:8982"
             allowedMethods:
               - GET
               - POST
               - PUT
               - DELETE
               - OPTIONS
+              - PATCH
             allowedHeaders: "*"
+            exposedHeaders: "*"
             allowCredentials: false
+            maxAge: 3600
 
       # ✅ AJOUTÉ - Active la découverte des services
       discovery:

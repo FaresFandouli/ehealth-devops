@@ -154,16 +154,3 @@ public class AuthController {
     }
 }
 
-/**
- * Classes DTO pour les réponses
- */
-record ErrorResponse(String message) {}
-record MessageResponse(String message) {}
-record TokenResponse(String token) {}
-
-@lombok.Data
-@lombok.NoArgsConstructor
-@lombok.AllArgsConstructor
-class RefreshTokenRequest {
-    private String refreshToken;
-}

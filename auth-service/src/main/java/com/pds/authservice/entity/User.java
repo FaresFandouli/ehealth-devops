@@ -17,13 +17,7 @@ public class User {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column(nullable = false)
-    private String firstName;
-
-    @Column(nullable = false)
-    private String lastName;
+    private String username;
 
     @Column(nullable = false)
     private String password; // Hashé avec BCrypt
@@ -33,31 +27,7 @@ public class User {
     private UserRole role; // PATIENT, DOCTOR, ADMIN
 
     @Column(nullable = false)
-    private Boolean emailVerified = false;
-
-    @Column(nullable = false)
     private Boolean active = true;
-
-    @Column
-    private String phone;
-
-    @Column
-    private String address;
-
-    @Column
-    private String city;
-
-    @Column
-    private String zipCode;
-
-    @Column
-    private String dateOfBirth;
-
-    @Column
-    private String gender;
-
-    @Column
-    private String avatar;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
