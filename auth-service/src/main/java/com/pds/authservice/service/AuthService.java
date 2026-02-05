@@ -39,9 +39,13 @@ public class AuthService {
             throw new RuntimeException("Cet email est déjà utilisé");
         }
 
-        // Générer un mot de passe temporaire
-        String tempPassword = generateTemporaryPassword();
-        String hashedPassword = passwordEncoder.encode(tempPassword);
+        // Valider le mot de passe
+        if (request.getPassword() == null || request.getPassword().length() < 6) {
+            throw new RuntimeException("Le mot de passe doit avoir au minimum 6 caractères");
+        }
+
+        // Hasher le mot de passe fourni par l'utilisateur
+        String hashedPassword = passwordEncoder.encode(request.getPassword());
 
         // Créer l'utilisateur
         User user = new User();
@@ -57,29 +61,25 @@ public class AuthService {
         user.setDateOfBirth(request.getDateOfBirth());
         user.setGender(request.getGender());
         user.setActive(true);
-        user.setEmailVerified(false);
+        user.setEmailVerified(false); // Email nécessite vérification
 
         User savedUser = userRepository.save(user);
+        log.info("Utilisateur inscrit avec succès: {}", savedUser.getEmail());
 
-        // Générer le token de vérification d'email
-        String verificationToken = generateVerificationToken(savedUser);
+        // Envoyer un email de vérification
+        try {
+            String verificationToken = generateVerificationToken(savedUser);
+            emailService.sendVerificationEmail(
+                savedUser.getEmail(),
+                savedUser.getFirstName(),
+                verificationToken
+            );
+            log.info("Email de vérification envoyé à: {}", savedUser.getEmail());
+        } catch (Exception e) {
+            log.warn("Erreur lors de l'envoi de l'email de vérification: {}", e.getMessage());
+        }
 
-        // Envoyer l'email d'inscription avec mot de passe temporaire
-        emailService.sendRegistrationEmail(
-            savedUser.getEmail(),
-            savedUser.getFirstName(),
-            savedUser.getLastName(),
-            tempPassword
-        );
-
-        // Envoyer l'email de vérification
-        emailService.sendEmailVerificationEmail(
-            savedUser.getEmail(),
-            savedUser.getFirstName(),
-            verificationToken
-        );
-
-        // Générer les tokens
+        // Générer les tokens JWT
         String jwtToken = jwtService.generateToken(savedUser.getId(), savedUser.getEmail(), savedUser.getRole().toString());
         String refreshToken = jwtService.generateRefreshToken(savedUser.getId(), savedUser.getEmail());
 
@@ -187,13 +187,16 @@ public class AuthService {
         passwordResetRepository.save(reset);
 
         // Envoyer l'email avec le nouveau mot de passe
-        emailService.sendPasswordResetEmail(
-            user.getEmail(),
-            user.getFirstName(),
-            tempPassword
-        );
-
-        log.info("Email de réinitialisation de mot de passe envoyé à: {}", email);
+        try {
+            emailService.sendPasswordResetEmail(
+                user.getEmail(),
+                user.getFirstName(),
+                tempPassword
+            );
+            log.info("Email de réinitialisation de mot de passe envoyé à: {}", email);
+        } catch (Exception e) {
+            log.warn("Erreur lors de l'envoi de l'email de réinitialisation: {}", e.getMessage());
+        }
     }
 
     /**
