@@ -46,58 +46,9 @@ public class AuthController {
             AuthResponse response = authService.login(request);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            log.warn("Tentative de connexion échouée pour: {}", request.getEmail());
+            log.warn("Tentative de connexion échouée pour: {}", request.getUsername());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponse("Email ou mot de passe invalide"));
-        }
-    }
-
-    /**
-     * Vérifier l'email
-     * POST /api/auth/verify-email
-     */
-    @PostMapping("/verify-email")
-    public ResponseEntity<?> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
-        try {
-            authService.verifyEmail(request);
-            return ResponseEntity.ok(new MessageResponse("Email vérifié avec succès"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(e.getMessage()));
-        }
-    }
-
-    /**
-     * Demander une réinitialisation de mot de passe
-     * POST /api/auth/forgot-password
-     */
-    @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
-        try {
-            authService.requestPasswordReset(email);
-            return ResponseEntity.ok(new MessageResponse(
-                "Un email avec un nouveau mot de passe a été envoyé à votre adresse"
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(e.getMessage()));
-        }
-    }
-
-    /**
-     * Confirmer la réinitialisation du mot de passe
-     * POST /api/auth/reset-password
-     */
-    @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(
-            @RequestParam String token,
-            @RequestParam String newPassword) {
-        try {
-            authService.confirmPasswordReset(token, newPassword);
-            return ResponseEntity.ok(new MessageResponse("Mot de passe réinitialisé avec succès"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(e.getMessage()));
+                .body(new ErrorResponse("Nom d'utilisateur ou mot de passe invalide"));
         }
     }
 
@@ -108,8 +59,8 @@ public class AuthController {
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(Authentication authentication) {
         try {
-            String email = authentication.getName();
-            AuthResponse response = authService.getProfile(email);
+            String username = authentication.getName();
+            AuthResponse response = authService.getProfile(username);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -124,8 +75,8 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
         try {
-            String email = jwtService.extractEmail(request.getRefreshToken());
-            String newToken = authService.getProfile(email).getToken();
+            String username = jwtService.extractEmail(request.getRefreshToken());
+            String newToken = authService.getProfile(username).getToken();
             return ResponseEntity.ok(new TokenResponse(newToken));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -139,7 +90,6 @@ public class AuthController {
      */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(Authentication authentication) {
-        // Pas de stockage de tokens côté serveur, donc juste confirmer la déconnexion
         log.info("Utilisateur déconnecté: {}", authentication.getName());
         return ResponseEntity.ok(new MessageResponse("Déconnexion réussie"));
     }
@@ -153,4 +103,3 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("Auth service is running"));
     }
 }
-
