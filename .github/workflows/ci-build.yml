@@ -12,7 +12,7 @@ env:
   DOCKER_IMAGE_PREFIX: ${{ secrets.DOCKERHUB_USERNAME }}/pds
 
 jobs:
-  # Frontend Build & Test Job
+  # Frontend Build, Test & Push Docker Image
   frontend-build-and-test:
     name: Build, Test & Push Frontend Docker Image
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # Backend Build & Test Job
+  # Backend Build & Test with Docker
   backend-build-and-test:
     name: Build, Test & Push Backend Docker Images
     runs-on: ubuntu-latest
@@ -87,29 +87,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Build ${{ matrix.service }}
-        working-directory: ${{ matrix.service }}
-        run: |
-          mvn clean compile -DskipTests -B
-
-      - name: Run Unit Tests for ${{ matrix.service }}
-        working-directory: ${{ matrix.service }}
-        run: |
-          mvn test -B
-        continue-on-error: false
-
-      - name: Package ${{ matrix.service }}
-        working-directory: ${{ matrix.service }}
-        run: |
-          mvn package -DskipTests -B
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -119,7 +96,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
+      - name: Build and Push ${{ matrix.service }} Docker Image
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.service }}
@@ -143,7 +120,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: rootpassword
           MYSQL_DATABASE: pds_test
         ports:
-          - 3306:3306
+          - 3307:3306
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval=10s
