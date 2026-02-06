@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: consultation-service
-          image: ${DOCKERHUB_USERNAME}/pds-consultation-service:1.0.0
+          image: faresfandouli/pds-consultation-service:1.0.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8085

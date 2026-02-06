@@ -9,8 +9,8 @@ spec:
   description: PDS E-Health Management System Project
 
   sourceRepos:
-    - https://github.com/${GITHUB_USERNAME}/pds-k8s-gitops.git
-    - https://github.com/${GITHUB_USERNAME}/pds-complete-project.git
+    - https://github.com/FaresFandouli/pds-k8s-gitops.git
+    - https://github.com/FaresFandouli/pds-complete-project.git
 
   destinations:
     - namespace: pds

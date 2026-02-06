@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: discovery-service
-          image: ${DOCKERHUB_USERNAME}/pds-discovery-service:1.0.0
+          image: faresfandouli/pds-discovery-service:1.0.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8761
