@@ -17,3 +17,9 @@ variable "vpc_cidr" {
   description = "VPC CIDR block"
   type        = string
 }
+
+variable "allowed_ssh_cidr" {
+  description = "CIDR block allowed for SSH and K8s API access"
+  type        = string
+  default     = "0.0.0.0/0"
+}

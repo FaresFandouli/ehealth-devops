@@ -6,7 +6,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: pds-project
   source:
     repoURL: https://github.com/${GITHUB_USERNAME}/pds-k8s-gitops.git
     targetRevision: main
