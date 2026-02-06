@@ -47,13 +47,20 @@ spec:
                 name: consultation-service
                 port:
                   number: 8085
-          - path: /
+          - path: /api
             pathType: Prefix
             backend:
               service:
                 name: gateway-service
                 port:
                   number: 8081
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
     - host: keycloak.pds-ehealth.duckdns.org
       http:
         paths:

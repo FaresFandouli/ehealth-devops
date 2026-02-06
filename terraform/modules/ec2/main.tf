@@ -21,7 +21,7 @@ resource "aws_instance" "master" {
   vpc_security_group_ids = [var.security_group_id]
 
   root_block_device {
-    volume_size           = 16
+    volume_size           = 25
     volume_type           = "gp3"
     delete_on_termination = true
   }
@@ -45,7 +45,7 @@ resource "aws_instance" "worker1" {
   vpc_security_group_ids = [var.security_group_id]
 
   root_block_device {
-    volume_size           = 16
+    volume_size           = 25
     volume_type           = "gp3"
     delete_on_termination = true
   }
@@ -69,7 +69,7 @@ resource "aws_instance" "worker2" {
   vpc_security_group_ids = [var.security_group_id]
 
   root_block_device {
-    volume_size           = 16
+    volume_size           = 25
     volume_type           = "gp3"
     delete_on_termination = true
   }

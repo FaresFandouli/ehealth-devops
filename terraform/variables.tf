@@ -38,3 +38,9 @@ variable "private_key_path" {
   type        = string
   default     = "~/.ssh/pds-k8s-key.pem"
 }
+
+variable "allowed_ssh_cidr" {
+  description = "CIDR block allowed to SSH into instances (your IP/32 recommended)"
+  type        = string
+  default     = "0.0.0.0/0"
+}

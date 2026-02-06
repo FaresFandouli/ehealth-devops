@@ -3,22 +3,22 @@ resource "aws_security_group" "k8s_cluster" {
   description = "Security group for Kubernetes cluster nodes"
   vpc_id      = var.vpc_id
 
-  # SSH access
+  # SSH access - restricted to allowed CIDR
   ingress {
     description = "SSH"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.allowed_ssh_cidr]
   }
 
-  # Kubernetes API server
+  # Kubernetes API server - restricted to allowed CIDR
   ingress {
     description = "Kubernetes API"
     from_port   = 6443
     to_port     = 6443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.allowed_ssh_cidr]
   }
 
   # etcd server client API
@@ -111,13 +111,13 @@ resource "aws_security_group" "k8s_cluster" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # ArgoCD
+  # ArgoCD - restricted to allowed CIDR
   ingress {
     description = "ArgoCD"
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.allowed_ssh_cidr]
   }
 
   # All internal traffic within VPC
