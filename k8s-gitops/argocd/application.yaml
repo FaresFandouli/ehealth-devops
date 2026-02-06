@@ -8,9 +8,9 @@ metadata:
 spec:
   project: pds-project
   source:
-    repoURL: https://github.com/FaresFandouli/pds-k8s-gitops.git
-    targetRevision: main
-    path: .
+    repoURL: https://github.com/FaresFandouli/ehealth-devops.git
+    targetRevision: feature/add-cicd
+    path: k8s-gitops
     directory:
       recurse: true
       include: '{base/*.yaml,infrastructure/*.yaml}'
