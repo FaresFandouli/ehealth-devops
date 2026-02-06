@@ -1,15 +1,15 @@
 ﻿server:
   port: 8083
   servlet:
-    context-path: /api/clinic  # ✅ AJOUTÉ - Préfixe pour tous les endpoints
+    context-path: /
 
 spring:
   application:
     name: clinic-service
   datasource:
-    url: jdbc:mysql://localhost:3306/pds_clinic?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/pds_clinic?createDatabaseIfNotExist=true&serverTimezone=UTC
     username: root
-    password: rootpassword
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -18,12 +18,12 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/realms/pds-realm
-          jwk-set-uri: http://localhost:8080/realms/pds-realm/protocol/openid-connect/certs
+  # Temporarily disabled for testing - will configure with Auth Service
+  # security:
+  #   oauth2:
+  #     resourceserver:
+  #       jwt:
+  #         issuer-uri: http://localhost:8082
 
 eureka:
   client:

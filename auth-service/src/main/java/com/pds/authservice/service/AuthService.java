@@ -46,6 +46,11 @@ public class AuthService {
         user.setRole(request.getRole());
         user.setActive(true);
 
+        // Sauvegarder la spécialité si c'est un médecin
+        if (request.getRole() == com.pds.authservice.entity.UserRole.DOCTOR && request.getSpeciality() != null) {
+            user.setSpeciality(request.getSpeciality());
+        }
+
         User savedUser = userRepository.save(user);
         log.info("Utilisateur inscrit avec succès: {}", savedUser.getUsername());
 
@@ -111,11 +116,33 @@ public class AuthService {
     /**
      * Construire la réponse d'authentification
      */
+    /**
+     * Récupérer les médecins par spécialité
+     */
+    public java.util.List<AuthResponse> getDoctorsBySpeciality(com.pds.authservice.entity.Speciality speciality) {
+        java.util.List<User> doctors;
+        if (speciality != null) {
+            doctors = userRepository.findByRoleAndSpeciality(com.pds.authservice.entity.UserRole.DOCTOR, speciality);
+        } else {
+            doctors = userRepository.findByRole(com.pds.authservice.entity.UserRole.DOCTOR);
+        }
+        return doctors.stream()
+            .filter(User::getActive)
+            .map(doctor -> AuthResponse.builder()
+                .id(doctor.getId())
+                .username(doctor.getUsername())
+                .role(doctor.getRole())
+                .speciality(doctor.getSpeciality())
+                .build())
+            .toList();
+    }
+
     private AuthResponse buildAuthResponse(User user, String jwtToken, String refreshToken) {
         return AuthResponse.builder()
             .id(user.getId())
             .username(user.getUsername())
             .role(user.getRole())
+            .speciality(user.getSpeciality())
             .token(jwtToken)
             .refreshToken(refreshToken)
             .build();

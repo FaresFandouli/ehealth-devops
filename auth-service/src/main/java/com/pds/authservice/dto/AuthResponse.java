@@ -1,5 +1,6 @@
 package com.pds.authservice.dto;
 
+import com.pds.authservice.entity.Speciality;
 import com.pds.authservice.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ public class AuthResponse {
     private Long id;
     private String username;
     private UserRole role;
+    private Speciality speciality;
     private String token;
     private String refreshToken;
 }

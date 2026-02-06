@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 const Login = () => {
   const navigate = useNavigate()
   const { login } = useAuth()
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -18,16 +18,16 @@ const Login = () => {
     setLoading(true)
 
     try {
-      await login(email, password)
-      toast.success('Connexion reussie!')
-      navigate('/dashboard')
+      await login(username, password)
+      toast.success('Connexion réussie!')
+      // Small delay to ensure state updates before navigation
+      setTimeout(() => {
+        navigate('/dashboard')
+      }, 300)
     } catch (error) {
       console.error('Login error:', error)
-      toast.error(
-        error.message ||
-        'Erreur de connexion. Veuillez vérifier vos identifiants.'
-      )
-    } finally {
+      const errorMessage = error.response?.data?.message || error.message || 'Erreur de connexion. Veuillez vérifier vos identifiants.'
+      toast.error(errorMessage)
       setLoading(false)
     }
   }
@@ -105,22 +105,22 @@ const Login = () => {
           </motion.div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
+            {/* Username Field */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
               <label className="block text-sm font-medium text-white/80 mb-2">
-                Adresse Email
+                Nom d'utilisateur
               </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="votre@email.com"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="john123"
                   className="glass-input pl-12"
                   required
                 />
@@ -160,12 +160,12 @@ const Login = () => {
               </div>
             </motion.div>
 
-            {/* Remember & Forgot */}
+            {/* Remember Me */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="flex items-center justify-between text-sm"
+              className="flex items-center text-sm"
             >
               <label className="flex items-center gap-2 text-white/70 cursor-pointer">
                 <input
@@ -174,9 +174,6 @@ const Login = () => {
                 />
                 Se souvenir de moi
               </label>
-              <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors">
-                Mot de passe oublie?
-              </a>
             </motion.div>
 
             {/* Submit Button */}

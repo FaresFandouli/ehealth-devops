@@ -1,11 +1,11 @@
 import apiClient from './axios.config'
 
 const authAPI = {
-  // Login with email and password
-  login: async (email, password) => {
+  // Login with username and password
+  login: async (username, password) => {
     try {
       const response = await apiClient.post('/auth/login', {
-        email,
+        username,
         password,
       })
       return response.data
@@ -52,40 +52,6 @@ const authAPI = {
       await apiClient.post('/auth/logout')
     } catch (error) {
       console.warn('Logout error:', error)
-    }
-  },
-
-  // Verify email with token
-  verifyEmail: async (data) => {
-    try {
-      const response = await apiClient.post('/auth/verify-email', data)
-      return response.data
-    } catch (error) {
-      throw error.response?.data || error
-    }
-  },
-
-  // Request password reset
-  forgotPassword: async (email) => {
-    try {
-      const response = await apiClient.post('/auth/forgot-password', null, {
-        params: { email }
-      })
-      return response.data
-    } catch (error) {
-      throw error.response?.data || error
-    }
-  },
-
-  // Reset password
-  resetPassword: async (token, newPassword) => {
-    try {
-      const response = await apiClient.post('/auth/reset-password', null, {
-        params: { token, newPassword }
-      })
-      return response.data
-    } catch (error) {
-      throw error.response?.data || error
     }
   },
 }

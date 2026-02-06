@@ -7,9 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
-@RequestMapping("/patients")
+@RequestMapping("/api/clinic/patients")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class PatientController {
     private final PatientService patientService;

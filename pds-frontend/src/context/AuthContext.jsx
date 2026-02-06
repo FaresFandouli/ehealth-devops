@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
         // Token is invalid, clear storage
         localStorage.removeItem('pds_token')
         localStorage.removeItem('pds_user')
+        localStorage.removeItem('pds_refresh_token')
         setUser(null)
         setIsAuthenticated(false)
       } finally {
@@ -36,12 +37,48 @@ export const AuthProvider = ({ children }) => {
     checkAuth()
   }, [])
 
-  const login = async (email, password) => {
+  const register = async (formData) => {
     setLoading(true)
     setError(null)
 
     try {
-      const response = await authAPI.login(email, password)
+      const response = await authAPI.register(formData)
+
+      // Store token and user data (user is auto-logged in after registration)
+      if (response.token) {
+        localStorage.setItem('pds_token', response.token)
+      }
+      if (response.refreshToken) {
+        localStorage.setItem('pds_refresh_token', response.refreshToken)
+      }
+
+      // Extract user data from response
+      const userData = {
+        id: response.id,
+        username: response.username,
+        role: response.role,
+      }
+
+      localStorage.setItem('pds_user', JSON.stringify(userData))
+      setUser(userData)
+      setIsAuthenticated(true)
+
+      return userData
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || err.message || 'Registration failed'
+      setError(errorMsg)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const login = async (username, password) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await authAPI.login(username, password)
 
       // Store token and user data
       if (response.token) {
@@ -54,11 +91,8 @@ export const AuthProvider = ({ children }) => {
       // Extract user data from response
       const userData = {
         id: response.id,
-        email: response.email,
-        firstName: response.firstName,
-        lastName: response.lastName,
-        role: response.role, // DOCTOR, PATIENT, ADMIN, etc.
-        avatar: response.avatar || null,
+        username: response.username,
+        role: response.role,
       }
 
       localStorage.setItem('pds_user', JSON.stringify(userData))
@@ -67,7 +101,7 @@ export const AuthProvider = ({ children }) => {
 
       return userData
     } catch (err) {
-      const errorMsg = err.message || 'Authentication failed'
+      const errorMsg = err.response?.data?.message || err.message || 'Authentication failed'
       setError(errorMsg)
       throw err
     } finally {
@@ -99,6 +133,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuthenticated,
     error,
+    register,
     login,
     logout,
   }

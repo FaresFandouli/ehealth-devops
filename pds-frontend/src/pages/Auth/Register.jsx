@@ -1,27 +1,38 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Heart, Mail, User, Lock, Phone, MapPin, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { Heart, User, Lock, Eye, EyeOff, ArrowRight, Stethoscope } from 'lucide-react'
 import toast from 'react-hot-toast'
-import authAPI from '../../api/auth.api'
+import { useAuth } from '../../context/AuthContext'
 
 const Register = () => {
   const navigate = useNavigate()
+  const { register: registerUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
-    email: '',
-    firstName: '',
-    lastName: '',
-    password: '', // Optionnel - affiché temporairement
+    username: '',
+    password: '',
     role: 'PATIENT',
-    phone: '',
-    address: '',
-    city: '',
-    zipCode: '',
-    dateOfBirth: '',
-    gender: '',
+    speciality: '',
   })
+
+  const specialities = [
+    { value: 'GENERAL_MEDICINE', label: 'Medecine Generale' },
+    { value: 'CARDIOLOGY', label: 'Cardiologie' },
+    { value: 'DERMATOLOGY', label: 'Dermatologie' },
+    { value: 'PEDIATRICS', label: 'Pediatrie' },
+    { value: 'GYNECOLOGY', label: 'Gynecologie' },
+    { value: 'OPHTHALMOLOGY', label: 'Ophtalmologie' },
+    { value: 'ORTHOPEDICS', label: 'Orthopedie' },
+    { value: 'NEUROLOGY', label: 'Neurologie' },
+    { value: 'PSYCHIATRY', label: 'Psychiatrie' },
+    { value: 'UROLOGY', label: 'Urologie' },
+    { value: 'ENT', label: 'ORL' },
+    { value: 'DENTISTRY', label: 'Dentisterie' },
+    { value: 'RADIOLOGY', label: 'Radiologie' },
+    { value: 'ONCOLOGY', label: 'Oncologie' },
+  ]
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -36,39 +47,38 @@ const Register = () => {
     setLoading(true)
 
     try {
-      // Créer l'objet request sans le mot de passe
-      const request = { ...formData }
-      delete request.password // Le mot de passe est généré par le serveur
+      // Valider le formulaire
+      if (formData.username.length < 3) {
+        toast.error('Le nom d\'utilisateur doit avoir au moins 3 caractères')
+        setLoading(false)
+        return
+      }
 
-      const response = await authAPI.register(request)
+      if (formData.password.length < 6) {
+        toast.error('Le mot de passe doit avoir au moins 6 caractères')
+        setLoading(false)
+        return
+      }
 
-      // Afficher le mot de passe temporaire
-      toast.success(`Inscription réussie! Vérifiez votre email.`)
+      // Preparer les donnees (enlever speciality si pas DOCTOR)
+      const dataToSend = { ...formData }
+      if (dataToSend.role !== 'DOCTOR') {
+        delete dataToSend.speciality
+      }
 
-      // Afficher modal avec le mot de passe temporaire
-      // Pour la démo, on affiche une notification
+      const user = await registerUser(dataToSend)
+
+      toast.success('Inscription réussie!')
+      toast.success(`Bienvenue ${user.username}!`)
+
+      // Rediriger vers dashboard (utilisateur est automatiquement connecté)
       setTimeout(() => {
-        toast((t) => (
-          <div className="text-sm">
-            <p className="font-bold mb-2">Vous recevrez un email avec:</p>
-            <p>✓ Mot de passe temporaire</p>
-            <p>✓ Lien de vérification d'email</p>
-            <p className="mt-2">Connectez-vous avec le mot de passe temporaire.</p>
-          </div>
-        ), { duration: 10000 })
-      }, 1000)
-
-      // Rediriger vers login après 2 secondes
-      setTimeout(() => {
-        navigate('/login')
-      }, 2000)
+        navigate('/dashboard')
+      }, 1500)
     } catch (error) {
       console.error('Registration error:', error)
-      toast.error(
-        error.response?.data?.message ||
-        'Erreur lors de l\'inscription'
-      )
-    } finally {
+      const errorMessage = error.response?.data?.message || error.message || 'Erreur lors de l\'inscription'
+      toast.error(errorMessage)
       setLoading(false)
     }
   }
@@ -108,7 +118,7 @@ const Register = () => {
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-2xl relative z-10"
+        className="w-full max-w-md relative z-10"
       >
         <div className="glass-light rounded-3xl p-8 shadow-glass-lg">
           {/* Header */}
@@ -130,7 +140,7 @@ const Register = () => {
             className="text-center mb-8"
           >
             <h1 className="text-3xl font-bold text-white mb-2">Rejoignez PDS Health</h1>
-            <p className="text-white/60">Créez votre compte pour accéder à nos services</p>
+            <p className="text-white/60">Créez votre compte pour commencer</p>
           </motion.div>
 
           {/* Form */}
@@ -152,141 +162,107 @@ const Register = () => {
                 required
               >
                 <option value="PATIENT">Patient</option>
-                <option value="DOCTOR">Docteur</option>
+                <option value="DOCTOR">Médecin</option>
+                <option value="ADMIN">Administrateur</option>
               </select>
             </motion.div>
 
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Speciality (only for DOCTOR) */}
+            {formData.role === 'DOCTOR' && (
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.37 }}
               >
-                <label className="block text-sm font-medium text-white/80 mb-2">Prénom</label>
+                <label className="block text-sm font-medium text-white/80 mb-2">
+                  Specialite
+                </label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
+                  <Stethoscope className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+                  <select
+                    name="speciality"
+                    value={formData.speciality}
                     onChange={handleInputChange}
-                    placeholder="Jean"
-                    className="glass-input pl-12"
+                    className="glass-input pl-12 w-full"
                     required
-                  />
+                  >
+                    <option value="">Selectionnez une specialite</option>
+                    {specialities.map((spec) => (
+                      <option key={spec.value} value={spec.value}>
+                        {spec.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </motion.div>
+            )}
 
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.45 }}
-              >
-                <label className="block text-sm font-medium text-white/80 mb-2">Nom</label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    placeholder="Dupont"
-                    className="glass-input pl-12"
-                    required
-                  />
-                </div>
-              </motion.div>
-            </div>
+            {/* Username */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Nom d'utilisateur
+              </label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  placeholder="john123"
+                  className="glass-input pl-12"
+                  minLength={3}
+                  required
+                />
+              </div>
+              <p className="text-xs text-white/50 mt-1">Minimum 3 caractères</p>
+            </motion.div>
 
-            {/* Email */}
+            {/* Password */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <label className="block text-sm font-medium text-white/80 mb-2">Email</label>
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Mot de passe
+              </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
                 <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
                   onChange={handleInputChange}
-                  placeholder="votre@email.com"
-                  className="glass-input pl-12"
+                  placeholder="••••••••"
+                  className="glass-input pl-12 pr-12"
+                  minLength={6}
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
-              <p className="text-xs text-white/50 mt-1">Un mot de passe temporaire sera envoyé</p>
-            </motion.div>
-
-            {/* Contact Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.55 }}
-              >
-                <label className="block text-sm font-medium text-white/80 mb-2">Téléphone</label>
-                <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="06 12 34 56 78"
-                    className="glass-input pl-12"
-                  />
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 }}
-              >
-                <label className="block text-sm font-medium text-white/80 mb-2">Ville</label>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    placeholder="Paris"
-                    className="glass-input pl-12"
-                  />
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Address */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.65 }}
-            >
-              <label className="block text-sm font-medium text-white/80 mb-2">Adresse</label>
-              <div className="relative">
-                <MapPin className="absolute left-4 top-3 w-5 h-5 text-white/50" />
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="123 Rue de Paris"
-                  className="glass-input pl-12"
-                />
-              </div>
+              <p className="text-xs text-white/50 mt-1">Minimum 6 caractères</p>
             </motion.div>
 
             {/* Submit Button */}
             <motion.button
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.6 }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
@@ -308,12 +284,12 @@ const Register = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.7 }}
             className="text-center mt-6"
           >
             <p className="text-white/60 text-sm">
               Déjà inscrit?{' '}
-              <Link to="/login" className="text-blue-400 hover:text-blue-300 transition-colors">
+              <Link to="/login" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold">
                 Se connecter
               </Link>
             </p>
@@ -324,7 +300,7 @@ const Register = () => {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
+          transition={{ delay: 0.8 }}
           className="text-center text-white/40 text-xs mt-6"
         >
           © 2024 PDS Health. Tous droits réservés.

@@ -48,7 +48,8 @@ public class SecurityConfig {
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
                                 "/api/auth/refresh",
-                                "/api/auth/health"
+                                "/api/auth/health",
+                                "/api/auth/doctors"
                         ).permitAll()
 
                         // Actuator

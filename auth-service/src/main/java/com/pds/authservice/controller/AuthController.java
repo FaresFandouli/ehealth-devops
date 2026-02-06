@@ -1,6 +1,7 @@
 package com.pds.authservice.controller;
 
 import com.pds.authservice.dto.*;
+import com.pds.authservice.entity.Speciality;
 import com.pds.authservice.service.AuthService;
 import com.pds.authservice.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -92,6 +93,20 @@ public class AuthController {
     public ResponseEntity<?> logout(Authentication authentication) {
         log.info("Utilisateur déconnecté: {}", authentication.getName());
         return ResponseEntity.ok(new MessageResponse("Déconnexion réussie"));
+    }
+
+    /**
+     * Récupérer les médecins par spécialité
+     * GET /api/auth/doctors?speciality=CARDIOLOGY
+     */
+    @GetMapping("/doctors")
+    public ResponseEntity<?> getDoctorsBySpeciality(@RequestParam(required = false) Speciality speciality) {
+        try {
+            return ResponseEntity.ok(authService.getDoctorsBySpeciality(speciality));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(e.getMessage()));
+        }
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.pds.authservice.dto;
 
+import com.pds.authservice.entity.Speciality;
 import com.pds.authservice.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,4 +20,6 @@ public class RegisterRequest {
 
     @NotNull(message = "Rôle requis")
     private UserRole role; // PATIENT, DOCTOR, ADMIN
+
+    private Speciality speciality; // Optionnel, utilisé quand role=DOCTOR
 }

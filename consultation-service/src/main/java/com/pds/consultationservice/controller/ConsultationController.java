@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/consultations")  // ✅ Gardez /consultations ici
+@RequestMapping("/api/consultation/consultations")
 @CrossOrigin(origins = "*")
 public class ConsultationController {
 

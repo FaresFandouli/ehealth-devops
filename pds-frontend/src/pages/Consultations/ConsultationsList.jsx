@@ -55,11 +55,7 @@ const ConsultationsList = () => {
 
   // Sample data for demo
   const sampleConsultations = [
-    { id: 1, patientName: 'Marie Dupont', reason: 'Douleurs abdominales', diagnosis: 'Gastrite', status: 'COMPLETED', consultationDate: '2024-02-04T09:00:00', doctor: 'Dr. Martin' },
-    { id: 2, patientName: 'Jean Pierre', reason: 'Controle annuel', diagnosis: 'En bonne sante', status: 'COMPLETED', consultationDate: '2024-02-04T10:30:00', doctor: 'Dr. Martin' },
-    { id: 3, patientName: 'Sophie Bernard', reason: 'Maux de tete frequents', diagnosis: 'En cours d\'evaluation', status: 'IN_PROGRESS', consultationDate: '2024-02-04T11:00:00', doctor: 'Dr. Martin' },
-    { id: 4, patientName: 'Lucas Petit', reason: 'Suivi diabete', diagnosis: null, status: 'SCHEDULED', consultationDate: '2024-02-05T14:00:00', doctor: 'Dr. Martin' },
-    { id: 5, patientName: 'Claire Moreau', reason: 'Vaccination', diagnosis: null, status: 'SCHEDULED', consultationDate: '2024-02-05T15:30:00', doctor: 'Dr. Martin' },
+    
   ]
 
   const displayConsultations = consultations.length > 0 ? filteredConsultations : sampleConsultations

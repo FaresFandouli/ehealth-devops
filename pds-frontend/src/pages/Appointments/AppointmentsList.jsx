@@ -19,6 +19,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { appointmentsAPI } from '../../api/appointments.api'
+import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, subWeeks, isToday, isSameDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -26,16 +27,44 @@ import { fr } from 'date-fns/locale'
 const AppointmentsList = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { user } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [currentWeek, setCurrentWeek] = useState(new Date())
   const [filterStatus, setFilterStatus] = useState('all')
   const [viewMode, setViewMode] = useState('list')
 
+  // Charger les RDV selon le role
   const { data: appointments = [], isLoading, refetch } = useQuery({
-    queryKey: ['appointments'],
-    queryFn: appointmentsAPI.getAll,
+    queryKey: ['appointments', user?.id, user?.role],
+    queryFn: async () => {
+      if (user?.role === 'PATIENT') {
+        return appointmentsAPI.getByPatient(user.id)
+      } else if (user?.role === 'DOCTOR') {
+        return appointmentsAPI.getByDoctor(user.id)
+      }
+      return appointmentsAPI.getAll()
+    },
   })
+
+  // Mutation pour annuler un RDV
+  const cancelMutation = useMutation({
+    mutationFn: appointmentsAPI.cancel,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['appointments'])
+      toast.success('Rendez-vous annule avec succes')
+    },
+    onError: (error) => {
+      const msg = error.response?.data || 'Erreur lors de l\'annulation'
+      toast.error(typeof msg === 'string' ? msg : 'Erreur lors de l\'annulation')
+    },
+  })
+
+  const handleCancel = (aptId) => {
+    if (window.confirm('Voulez-vous vraiment annuler ce rendez-vous ?')) {
+      cancelMutation.mutate(aptId)
+    }
+  }
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 })
   const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 1 })
@@ -71,17 +100,7 @@ const AppointmentsList = () => {
     })
   }
 
-  // Sample data for demo
-  const sampleAppointments = [
-    { id: 1, patientName: 'Marie Dupont', time: '09:00', type: 'Consultation', status: 'SCHEDULED', doctor: 'Dr. Martin' },
-    { id: 2, patientName: 'Jean Pierre', time: '10:30', type: 'Suivi', status: 'COMPLETED', doctor: 'Dr. Martin' },
-    { id: 3, patientName: 'Sophie Bernard', time: '11:00', type: 'Premiere visite', status: 'IN_PROGRESS', doctor: 'Dr. Martin' },
-    { id: 4, patientName: 'Lucas Petit', time: '14:00', type: 'Controle', status: 'SCHEDULED', doctor: 'Dr. Martin' },
-    { id: 5, patientName: 'Claire Moreau', time: '15:30', type: 'Consultation', status: 'CANCELLED', doctor: 'Dr. Martin' },
-    { id: 6, patientName: 'Paul Durand', time: '16:00', type: 'Suivi', status: 'SCHEDULED', doctor: 'Dr. Martin' },
-  ]
-
-  const displayAppointments = appointments.length > 0 ? filteredAppointments : sampleAppointments
+  const displayAppointments = filteredAppointments
 
   return (
     <div className="space-y-6">
@@ -239,19 +258,34 @@ const AppointmentsList = () => {
                   className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all cursor-pointer group"
                 >
                   <div className="text-center min-w-[60px]">
-                    <p className="text-lg font-bold text-white">{apt.time || '09:00'}</p>
+                    <p className="text-lg font-bold text-white">
+                      {apt.appointmentDate
+                        ? format(new Date(apt.appointmentDate), 'HH:mm')
+                        : apt.time || '09:00'}
+                    </p>
                     <p className="text-xs text-white/50">{apt.durationMinutes || 30} min</p>
                   </div>
                   <div className="w-1 h-12 rounded-full bg-gradient-to-b from-blue-500 to-purple-500" />
                   <div className="flex-1">
                     <p className="font-semibold text-white">{apt.patientName || `Patient #${apt.patientId}`}</p>
                     <p className="text-sm text-white/60">{apt.type || apt.reason || 'Consultation'}</p>
+                    {apt.doctorId && <p className="text-xs text-white/40">Medecin #{apt.doctorId}</p>}
                   </div>
                   {getStatusBadge(apt.status)}
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {apt.status === 'SCHEDULED' && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleCancel(apt.id) }}
+                        className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-colors"
+                        title="Annuler"
+                      >
+                        <XCircle className="w-4 h-4 text-red-400" />
+                      </button>
+                    )}
                     <button
                       onClick={() => navigate(`/appointments/${apt.id}/edit`)}
                       className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                      title="Modifier"
                     >
                       <Edit className="w-4 h-4 text-white" />
                     </button>

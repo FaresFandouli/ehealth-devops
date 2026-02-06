@@ -9,27 +9,35 @@ export const appointmentsAPI = {
   },
 
   getById: async (id) => {
-    const response = await apiClient.get(`${CLINIC_BASE}/getAppointmentById/${id}`)
+    const response = await apiClient.get(`${CLINIC_BASE}/${id}`)
     return response.data
   },
 
   getByPatient: async (patientId) => {
-    const response = await apiClient.get(`${CLINIC_BASE}/getByPatient/${patientId}`)
+    const response = await apiClient.get(`${CLINIC_BASE}/patient/${patientId}`)
     return response.data
   },
 
   getByDoctor: async (doctorId) => {
-    const response = await apiClient.get(`${CLINIC_BASE}/getByDoctor/${doctorId}`)
+    const response = await apiClient.get(`${CLINIC_BASE}/doctor/${doctorId}`)
     return response.data
   },
 
-  getByDate: async (date) => {
-    const response = await apiClient.get(`${CLINIC_BASE}/getByDate/${date}`)
+  // Prendre un rendez-vous (nouveau systeme avec verification de disponibilite)
+  book: async (appointmentData) => {
+    const response = await apiClient.post(`${CLINIC_BASE}/book`, appointmentData)
     return response.data
   },
 
+  // Annuler un rendez-vous
+  cancel: async (id) => {
+    const response = await apiClient.put(`${CLINIC_BASE}/${id}/cancel`)
+    return response.data
+  },
+
+  // Garder create comme alias de book pour compatibilite
   create: async (appointmentData) => {
-    const response = await apiClient.post(`${CLINIC_BASE}/createAppointment`, appointmentData)
+    const response = await apiClient.post(`${CLINIC_BASE}/book`, appointmentData)
     return response.data
   },
 

@@ -37,4 +37,8 @@ public class User {
 
     @Column
     private LocalDateTime lastLogin;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Speciality speciality; // Seulement pour les DOCTOR
 }
