@@ -8,7 +8,7 @@ metadata:
 spec:
   project: pds-project
   source:
-    repoURL: https://github.com/${GITHUB_USERNAME}/pds-k8s-gitops.git
+    repoURL: https://github.com/FaresFandouli/pds-k8s-gitops.git
     targetRevision: main
     path: .
     directory:

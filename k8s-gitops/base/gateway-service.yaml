@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: gateway-service
-          image: ${DOCKERHUB_USERNAME}/pds-gateway-service:1.0.0
+          image: faresfandouli/pds-gateway-service:1.0.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8081

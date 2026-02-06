@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: config-service
-          image: ${DOCKERHUB_USERNAME}/pds-config-service:1.0.0
+          image: faresfandouli/pds-config-service:1.0.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8888
